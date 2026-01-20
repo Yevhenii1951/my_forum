@@ -63,10 +63,8 @@ export function Posts() {
 		setSelectedPostId(postId)
 
 		try {
-			// ожидаем, что backend отдаёт { post, comments } или просто пост с comments
 			const data = await api(`/posts/${postId}`)
 
-			// поддержим оба варианта:
 			const post = data.post ?? data
 			const comms = data.comments ?? data.comments ?? post.comments ?? []
 
@@ -88,8 +86,8 @@ export function Posts() {
 				body: JSON.stringify({ body: commentBody }),
 			})
 			setCommentBody('')
-			await openPost(selectedPostId) // перезагрузим пост/комменты
-			await loadPosts() // чтобы обновилось locked и т.п.
+			await openPost(selectedPostId)
+			await loadPosts()
 		} catch (err: unknown) {
 			setError(err instanceof Error ? err.message : 'Failed to add comment')
 		}
