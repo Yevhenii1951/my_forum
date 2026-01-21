@@ -160,6 +160,11 @@ app.post('/posts/:id/comments', requireAuth, async (req: any, res) => {
 	const post = await prisma.post.findUnique({ where: { id: postId } })
 	if (!post) return res.status(404).json({ error: 'Post not found' })
 	if (post.locked) return res.status(403).json({ error: 'Post is locked' })
+	if (post.authorId === req.session.userId) {
+		return res
+			.status(403)
+			.json({ error: 'You cannot comment on your own post' })
+	}
 
 	const comment = await prisma.comment.create({
 		data: {
