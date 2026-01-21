@@ -1,58 +1,57 @@
-import { useEffect, useState } from "react";
-import { api } from "../api";
+import { useEffect, useState } from 'react'
+import { api } from '../api'
 
 type ProfileUser = {
-  id: number;
-  name: string;
-  email: string;
-  createdAt: string;
-  posts: { id: number; title: string; createdAt: string; locked: boolean }[];
-};
+	id: number
+	name: string
+	email: string
+	createdAt: string
+	posts: { id: number; title: string; createdAt: string; locked: boolean }[]
+}
 
 type Props = {
-  userId: number;
-};
+	userId: number
+}
 
 export function Profile({ userId }: Props) {
-  const [user, setUser] = useState<ProfileUser | null>(null);
-  const [error, setError] = useState("");
+	const [user, setUser] = useState<ProfileUser | null>(null)
+	const [error, setError] = useState('')
 
-  async function load() {
-    setError("");
-    try {
-      const data = await api(`/users/${userId}`);
-      setUser(data);
-    } catch (err: any) {
-      setError(err.message);
-    }
-  }
+	useEffect(() => {
+		async function load() {
+			setError('')
+			try {
+				const data = await api(`/users/${userId}`)
+				setUser(data)
+			} catch (err: unknown) {
+				setError(err instanceof Error ? err.message : 'Failed to load profile')
+			}
+		}
+		void load()
+	}, [userId])
 
-  useEffect(() => {
-    load();
-  }, [userId]);
+	if (error) return <p style={{ color: 'red' }}>{error}</p>
+	if (!user) return <p>Loading profile...</p>
 
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!user) return <p>Loading profile...</p>;
+	return (
+		<div>
+			<h3>Profile</h3>
+			<p>
+				<b>{user.name}</b> ({user.email})
+			</p>
 
-  return (
-    <div>
-      <h3>Profile</h3>
-      <p>
-        <b>{user.name}</b> ({user.email})
-      </p>
-
-      <h4>User posts</h4>
-      {user.posts.length === 0 ? (
-        <p>No posts</p>
-      ) : (
-        <ul>
-          {user.posts.map((p) => (
-            <li key={p.id}>
-              {p.title} {p.locked ? "(locked)" : ""}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+			<h4>User posts</h4>
+			{user.posts.length === 0 ? (
+				<p>No posts</p>
+			) : (
+				<ul>
+					{user.posts.map(p => (
+						<li key={p.id}>
+							{p.title} {p.locked ? '(locked)' : ''}
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	)
 }

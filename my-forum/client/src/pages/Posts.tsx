@@ -31,14 +31,18 @@ export function Posts() {
 
 	const [error, setError] = useState('')
 	const [profileUserId, setProfileUserId] = useState<number | null>(null)
+	const [loading, setLoading] = useState(false)
 
 	async function loadPosts() {
 		setError('')
+		setLoading(true)
 		try {
 			const data = await api('/posts')
 			setPosts(data)
 		} catch (err: unknown) {
 			setError(err instanceof Error ? err.message : 'Failed to load posts')
+		} finally {
+			setLoading(false)
 		}
 	}
 
@@ -117,7 +121,11 @@ export function Posts() {
 		<div>
 			<h2>Posts</h2>
 
-			<button onClick={loadPosts}>Refresh posts</button>
+			<button onClick={loadPosts} disabled={loading}>
+				{loading ? 'Loading...' : 'Refresh posts'}
+			</button>
+
+			{loading && <p>⏳ Loading posts...</p>}
 
 			<hr />
 
